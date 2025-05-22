@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container mx-auto px-4 py-6">
+  <h2 class="text-2xl font-bold text-green-800 mb-6">Add New Crop</h2>
+  <form action="{{ url_for('main.add_crop') }}" method="post" class="bg-white p-6 rounded-lg shadow-md">
+    <!-- Insert CSRF token as a hidden input field -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="mb-4">
+      <label for="name" class="block text-gray-700 font-bold mb-2">Crop Name</label>
+      <input type="text" name="name" id="name" placeholder="Enter crop name"
+             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-green-500">
+    </div>
+    <div class="mb-4">
+      <label for="planted_date" class="block text-gray-700 font-bold mb-2">Planted Date</label>
+      <input type="date" name="planted_date" id="planted_date"
+             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-green-500">
+    </div>
+    <div class="mb-4">
+      <label for="health_status" class="block text-gray-700 font-bold mb-2">Health Status</label>
+      <input type="text" name="health_status" id="health_status" placeholder="e.g., 85% Healthy"
+             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-green-500">
+    </div>
+    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+      Add Crop
+    </button>
+  </form>
+</main>
+{% endblock %}

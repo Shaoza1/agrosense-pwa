@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container mx-auto px-4 py-6">
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-green-800">Farm Dashboard</h2>
+            <div class="text-sm text-gray-600">
+                <span id="current-date"></span>
+                <span class="mx-2">•</span>
+                <span id="connection-status" class="flex items-center">
+          <i class="fas fa-wifi mr-1"></i>
+          <span>Online</span>
+        </span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Weather Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-gray-700">Weather Today</h3>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-sun text-yellow-500 text-3xl mr-3"></i>
+                            <div>
+                                <p class="text-2xl font-bold">28°C</p>
+                                <p class="text-gray-500 text-sm">Sunny</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex justify-between text-sm">
+                        <span>Humidity: 65%</span>
+                        <span>Wind: 12 km/h</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Crop Health Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <h3 class="font-semibold text-gray-700">Crop Health</h3>
+                <div class="mt-4">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium">Wheat Field</span>
+                        <span class="text-sm font-medium">85% Healthy</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                    </div>
+                    <div class="flex justify-between mt-3 text-sm text-gray-500">
+                        <span>5% Disease</span>
+                        <span>10% Nutrient Def.</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Alerts Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-semibold text-gray-700">Alerts</h3>
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">2 New</span>
+                </div>
+                <div class="mt-4 space-y-3">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 text-red-500 mt-1">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">Possible pest infestation detected</p>
+                            <p class="text-xs text-gray-500">2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 text-yellow-500 mt-1">
+                            <i class="fas fa-cloud-rain"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">Heavy rain expected tomorrow</p>
+                            <p class="text-xs text-gray-500">5 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Crops Section (Private Content) -->
+        {% if current_user.is_authenticated %}
+        <div>
+            <h3 class="text-xl font-semibold text-green-800 mb-4">My Crops</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% for crop in crops|default([]) %}
+                <div class="crop-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300">
+                    <div class="h-32 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center">
+                        <i class="fas fa-wheat-awn text-white text-5xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-lg">{{ crop.name }}</h4>
+                        <p class="text-gray-600 text-sm">
+                            Planted: {% if crop.planted_date %}{{ crop.planted_date.strftime('%d %b %Y') }}{% else
+                            %}N/A{% endif %}
+                        </p>
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-green-600 font-medium">{{ crop.health_status }}</span>
+                            <button class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- Add New Crop Card -->
+                <a href="{{ url_for('main.add_crop') }}" class="block">
+                    <div class="crop-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 border-2 border-dashed border-gray-300 hover:border-green-500 flex items-center justify-center">
+                        <div class="flex flex-col items-center p-6 text-gray-500 hover:text-green-600">
+                            <i class="fas fa-plus-circle text-3xl mb-2"></i>
+                            <span class="font-medium">Add New Crop</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-yellow-100 p-4 rounded mb-8">
+            <p class="text-lg">
+                Please <a href="{{ url_for('auth.login') }}" class="text-blue-600 underline">log in</a> or
+                <a href="{{ url_for('auth.register') }}" class="text-blue-600 underline">register</a> to view your
+                personal crop data.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Diagnose Section -->
+        <section id="diagnose" class="mb-12 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-green-800 mb-6">Crop Diagnosis</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Upload Crop Image</h3>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-4">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 mb-3">Drag &amp; drop crop image here or</p>
+                        <label for="file-upload"
+                               class="cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition">
+                            <i class="fas fa-folder-open mr-2"></i> Browse Files
+                        </label>
+                        <input id="file-upload" type="file" class="hidden" accept="image/*">
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">Upload clear images of affected leaves, fruits, or stems for
+                        accurate diagnosis.</p>
+                    <h3 class="text-lg font-semibold mb-4">Or Use Camera</h3>
+                    <div class="relative">
+                        <video id="camera-feed" class="w-full h-64 bg-gray-200" autoplay playsinline></video>
+                        <button id="capture-btn"
+                                class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg pulse">
+                            <i class="fas fa-camera text-xl"></i>
+                        </button>
+                    </div>
+                    <canvas id="canvas" class="hidden"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Diagnosis Results</h3>
+                    <div id="diagnosis-placeholder"
+                         class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-microscope text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600">Upload or capture an image to analyze crop health</p>
+                    </div>
+                    <div id="diagnosis-results" class="hidden">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-green-800">Diagnosis Complete</h4>
+                                    <div class="mt-1 text-sm text-green-700">
+                                        <p>Image analyzed with 92% confidence</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Additional detailed results can be added here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Section -->
+        <section id="weather" class="mb-12">
+            <h2 class="text-2xl font-bold text-green-800 mb-6">Weather Forecast</h2>
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-blue-600 to-blue-800">
+                    <div class="flex flex-wrap justify-between items-center">
+                        <h3 class="text-lg leading-6 font-medium text-white">7-Day Weather Forecast</h3>
+                        <div class="mt-2 sm:mt-0">
+                            <div class="relative">
+                                <select class="appearance-none bg-blue-700 border border-blue-600 text-white text-sm rounded-md pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                                    {% for location in weather.locations or [] %}
+                                    <option value="{{ location.id }}">{{ location.name }}</option>
+                                    {% else %}
+                                    <option>My Farm Location</option>
+                                    <option>Secondary Field</option>
+                                    <option>Add New Location</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white px-4 py-5">
+                    <div class="flex overflow-x-auto pb-2 -mx-1">
+                        {% for day in weather.forecast or [] %}
+                        <div class="px-1 flex-shrink-0 w-24">
+                            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
+                                <p class="text-xs font-semibold text-blue-800">{{ day.label }}</p>
+                                <i class="{{ day.icon_class or 'fas fa-sun' }} text-yellow-500 text-xl my-2"></i>
+                                <p class="text-sm font-bold">{{ day.high }}</p>
+                                <p class="text-xs text-gray-500">{{ day.low }}</p>
+                                <p class="text-xs mt-1 text-blue-600">{{ day.condition }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="px-1 flex-shrink-0 w-24">
+                            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-100">
+                                <p class="text-xs font-semibold text-blue-800">Today</p>
+                                <i class="fas fa-sun text-yellow-500 text-xl my-2"></i>
+                                <p class="text-sm font-bold">28°</p>
+                                <p class="text-xs text-gray-500">18°</p>
+                                <p class="text-xs mt-1 text-blue-600">Sunny</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="px-4 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700">Rainfall Advisory</h4>
+                            <p class="text-xs text-gray-500">{{ weather.advisory or "Heavy rain expected on Thursday
+                                (15mm)" }}</p>
+                        </div>
+                        <button class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advice Section -->
+        <section id="advice" class="mb-12">
+            <h2 class="text-2xl font-bold text-green-800 mb-6">Agricultural Advice</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                {% for advice in advice_list or [] %}
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-{{ advice.border_color or 'green' }}-500">
+                    <h3 class="text-lg font-semibold mb-4">{{ advice.title }}</h3>
+                    <div class="space-y-4">
+                        {% for item in advice.items %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-{{ advice.border_color or 'green' }}-100 p-2 rounded-full">
+                                <i class="{{ item.icon_class }}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium">{{ item.subtitle }}</h4>
+                                <p class="text-xs text-gray-600 mt-1">{{ item.description }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="mt-4 text-sm font-medium text-{{ advice.border_color or 'green' }}-600 hover:text-{{ advice.border_color or 'green' }}-800 flex items-center">
+                        View All Advice <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+                {% else %}
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold mb-4">Ask a Question</h3>
+                    <div class="mb-4">
+                        <textarea
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-green-500"
+                                rows="3"
+                                placeholder="Type your question about crops, pests, or farming practices..."></textarea>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition">
+                            <i class="fas fa-paper-plane mr-2"></i> Submit
+                        </button>
+                        <button id="voice-btn"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full transition">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Supports multiple local languages.</p>
+                </div>
+                {% endfor %}
+                {% if knowledge_base %}
+                {% for kb in knowledge_base %}
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-{{ kb.border_color or 'purple' }}-500">
+                    <h3 class="text-lg font-semibold mb-4">{{ kb.title }}</h3>
+                    <div class="space-y-3">
+                        {% for resource in kb.resources %}
+                        <a href="{{ resource.link }}"
+                           class="flex items-center p-2 rounded-md hover:bg-{{ kb.border_color or 'purple' }}-50 transition">
+                            <div class="flex-shrink-0 bg-{{ kb.border_color or 'purple' }}-100 p-2 rounded-full">
+                                <i class="{{ resource.icon_class }}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium">{{ resource.name }}</h4>
+                                <p class="text-xs text-gray-600">{{ resource.detail }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <button class="mt-4 text-sm font-medium text-{{ kb.border_color or 'purple' }}-600 hover:text-{{ kb.border_color or 'purple' }}-800 flex items-center">
+                        Browse All Resources <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                    <h3 class="text-lg font-semibold mb-4">Knowledge Base</h3>
+                    <div class="space-y-3">
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-purple-50 transition">
+                            <div class="flex-shrink-0 bg-purple-100 p-2 rounded-full">
+                                <i class="fas fa-book text-purple-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium">Organic Farming Techniques</h4>
+                                <p class="text-xs text-gray-600">Learn sustainable practices</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-purple-50 transition">
+                            <div class="flex-shrink-0 bg-purple-100 p-2 rounded-full">
+                                <i class="fas fa-chart-line text-purple-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium">Market Price Trends</h4>
+                                <p class="text-xs text-gray-600">Current commodity prices</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-purple-50 transition">
+                            <div class="flex-shrink-0 bg-purple-100 p-2 rounded-full">
+                                <i class="fas fa-tractor text-purple-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium">Equipment Maintenance</h4>
+                                <p class="text-xs text-gray-600">Keep tools in top condition</p>
+                            </div>
+                        </a>
+                    </div>
+                    <button class="mt-4 text-sm font-medium text-purple-600 hover:text-purple-800 flex items-center">
+                        Browse All Resources <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Recent Community Questions Section -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-green-600 to-green-800">
+                    <h3 class="text-lg leading-6 font-medium text-white">Recent Community Questions</h3>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                    <dl class="sm:divide-y sm:divide-gray-200">
+                        {% for question in community_questions or [] %}
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-900 flex items-center">
+                                <img class="h-8 w-8 rounded-full" src="{{ question.user_avatar }}" alt="">
+                                <div class="ml-3">
+                                    <p>{{ question.user_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ question.time }}</p>
+                                </div>
+                            </dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <p class="font-medium">{{ question.title }}</p>
+                                <p class="text-gray-600 mt-1">{{ question.body }}</p>
+                                <div class="mt-2 flex space-x-4">
+                    <span class="inline-flex items-center text-xs text-gray-500">
+                      <i class="fas fa-comment mr-1"></i> {{ question.answer_count }} answers
+                    </span>
+                                    <span class="inline-flex items-center text-xs text-gray-500">
+                      <i class="fas fa-eye mr-1"></i> {{ question.views }} views
+                    </span>
+                                </div>
+                            </dd>
+                        </div>
+                        {% else %}
+                        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-900 flex items-center">
+                                <img class="h-8 w-8 rounded-full"
+                                     src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d" alt="">
+                                <div class="ml-3">
+                                    <p>Rajesh Kumar</p>
+                                    <p class="text-xs text-gray-500">2 hours ago</p>
+                                </div>
+                            </dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <p class="font-medium">Yellow spots on wheat leaves - what could it be?</p>
+                                <p class="text-gray-600 mt-1">I’m noticing yellow-orange spots on my wheat crop. Any
+                                    ideas?</p>
+                                <div class="mt-2 flex space-x-4">
+                    <span class="inline-flex items-center text-xs text-gray-500">
+                      <i class="fas fa-comment mr-1"></i> 5 answers
+                    </span>
+                                    <span class="inline-flex items-center text-xs text-gray-500">
+                      <i class="fas fa-eye mr-1"></i> 24 views
+                    </span>
+                                </div>
+                            </dd>
+                        </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+                <div class="px-4 py-4 bg-gray-50 border-t border-gray-200 text-center">
+                    <button class="text-sm font-medium text-green-600 hover:text-green-800">
+                        View All Questions <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+    </main>
+{% endblock %}

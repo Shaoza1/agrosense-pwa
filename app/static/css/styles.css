@@ -1,0 +1,27 @@
+.crop-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.diagnosis-result {
+  transition: all 0.3s ease;
+}
+
+#camera-feed {
+  border-radius: 0.5rem;
+  border: 2px dashed #4CAF50;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.voice-btn.listening {
+  background-color: #EF4444;
+}
